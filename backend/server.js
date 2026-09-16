@@ -21,18 +21,19 @@ const app = express();
 // --- SMART CORS SETUP ---
 
 const allowedOrigins = [
+    'https://radheclothing.in',
+    'https://www.radheclothing.in',
     'https://neelafashion.com',
     'https://www.neelafashion.com',
     'http://localhost:5173',
     'http://localhost:3000',
-    'http://127.0.0.1:5173',
-    'https://api.neelafashion.com'
+    'http://127.0.0.1:5173'
 ];
 
 app.use(cors({
     origin: function (origin, callback) {
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1) {
+        if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('vercel.app')) {
             return callback(null, true);
         } else {
             return callback(null, true); // Allow all for now to prevent blocking
@@ -581,23 +582,8 @@ app.post('/api/payment/callback', validateWebhook); // New Webhook Route
 
 const PORT = process.env.PORT || 5000;
 
-const startServer = async () => {
-    try {
-        await sequelize.authenticate();
-        console.log('✅ Connected to TiDB Database successfully!');
-        await seedAdmin();
-        await seedProducts();
-        await seedCategories();
-        await seedCMS();
-        await seedReviews();
-        await seedCart();
-        await seedOrders();
-        app.listen(PORT, () => {
-            console.log(`🚀 Server running on port ${PORT}`);
-        });
-    } catch (error) {
-        console.error('❌ Database Connection Failed:', error);
-    }
-};
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    startServer();
+}
 
-startServer();
+module.exports = app;
