@@ -1,34 +1,181 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { 
     Product, Order, User, CategoryStructure, 
-    ShippingRule, ShippingRulesMap, Review, HomeContent, AboutContent, ContactContent, GlobalSettings
+    ShippingRule, ShippingRulesMap, Review, HomeContent, AboutContent, ContactContent, GlobalSettings,
+    CATEGORIES
 } from '../types';
 import toast from 'react-hot-toast';
 
-// Dynamic API URL
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
 const DEFAULT_HOME_CONTENT: HomeContent = {
-    heroTitle: 'Classic Aura', heroSubtitle: 'Experience craftsmanship...',
-    heroImage: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae', marqueeText: ["Heritage", "Luxury"],
-    sectionTitleTrends: 'Curated Trends', sectionTitleFeatured: 'Trending Now', sectionTitleTestimonials: 'Voices',
-    testimonials: [], trendImages: { large: '', topRight: '', bottomRight: '' }
+    heroTitle: 'Radhe Clothing', heroSubtitle: 'Sacred Elegance & Timeless Luxury Fashion',
+    heroImage: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1600&q=80', marqueeText: ["Radhe Clothing", "Peacock Grace", "Royal Silk", "Heritage Handloom", "Krishna Elegance"],
+    sectionTitleTrends: 'Curated Collections', sectionTitleFeatured: 'Trending Grace', sectionTitleTestimonials: 'Voices of Radhe',
+    testimonials: [
+      { id: 1, text: "Absolutely stunning craftsmanship. The silk saree I ordered for the festival was beyond my expectations.", author: "Ananya S.", role: "Verified Buyer" },
+      { id: 2, text: "Radhe Clothing has redefined luxury ethnic wear. The vibrant colors and embroidery are unmatched.", author: "Priya M.", role: "Fashion Enthusiast" },
+      { id: 3, text: "Impeccable service and fabric quality. Will definitely buy again!", author: "Rohan K.", role: "Loyal Customer" },
+    ], trendImages: { large: '', topRight: '', bottomRight: '' }
 };
 
 const DEFAULT_GLOBAL_SETTINGS: GlobalSettings = { 
-    logoUrl: '', 
-    siteName: 'Neela Fashion', 
+    logoUrl: '/logo.png', 
+    siteName: 'Radhe Clothing', 
     currency: '₹', 
-    logoWidth: '80px', 
+    logoWidth: '150px', 
     taxRate: 5,
-    instagramUrl: '',
-    youtubeUrl: '',
-    whatsappNumber: '',
-    contactNumber: ''
+    instagramUrl: 'https://instagram.com/radheclothing',
+    youtubeUrl: 'https://youtube.com',
+    whatsappNumber: '+91 9876543210',
+    contactNumber: '+91 9876543210'
 };
 
-const DEFAULT_ABOUT_CONTENT = { title: 'Weaving Stories', description: 'Born from desire...', heroImage: '' };
-const DEFAULT_CONTACT_CONTENT = { address: 'Bangalore', phone: '+91 98765', email: 'info@neela.com', mapUrl: '', heroImage: '' };
+const DEFAULT_ABOUT_CONTENT: AboutContent = { 
+    title: 'Sacred Weaves & Timeless Grace', 
+    description: 'At Radhe Clothing, we craft elegance inspired by heritage traditions, vibrant peacock motifs, and divine craftsmanship.', 
+    heroImage: '' 
+};
+
+const DEFAULT_CONTACT_CONTENT: ContactContent = { 
+    address: 'Radhe Clothing Plaza, Main Road', 
+    phone: '+91 9876543210', 
+    email: 'support@radheclothing.com', 
+    mapUrl: '', 
+    heroImage: '' 
+};
+
+const INITIAL_PRODUCTS: Product[] = [
+  {
+    id: 1,
+    name: "Kanchipuram Silk Saree - Royal Gold & Magenta",
+    category: "Saree",
+    subCategory: "Silk Saree",
+    price: 4999,
+    discountPrice: 3999,
+    image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=800&q=80"
+    ],
+    description: "Pure zari woven authentic Kanchipuram silk saree with vibrant color combinations and rich pallu work.",
+    material: "Pure Silk",
+    rating: 4.9,
+    stock: 15,
+    sizeStock: { "Free Size": 15 },
+    sizePrices: { "Free Size": 3999 },
+    showFreeSize: true
+  },
+  {
+    id: 2,
+    name: "Embroidered Nyra Cut Kurti Set",
+    category: "Kurtis Collections",
+    subCategory: "Nyra Cut Kurti",
+    price: 1899,
+    discountPrice: 1499,
+    image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80"
+    ],
+    description: "Graceful Nyra cut kurti set with intricate thread embroidery and soft viscose dupatta.",
+    material: "Viscose Rayon",
+    rating: 4.7,
+    stock: 25,
+    sizeStock: { "S": 5, "M": 10, "L": 8, "XL": 2 },
+    sizePrices: { "S": 1499, "M": 1499, "L": 1499, "XL": 1499 },
+    showFreeSize: false
+  },
+  {
+    id: 3,
+    name: "Premium Cotton Ankle Length Leggings",
+    category: "Bottom Wear",
+    subCategory: "Ankle Length",
+    price: 499,
+    discountPrice: 399,
+    image: "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?auto=format&fit=crop&w=800&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?auto=format&fit=crop&w=800&q=80"
+    ],
+    description: "4-way stretch bio-washed combed cotton leggings for all-day comfort and perfect fit.",
+    material: "95% Cotton, 5% Spandex",
+    rating: 4.8,
+    stock: 50,
+    sizeStock: { "Free Size": 50 },
+    sizePrices: { "Free Size": 399 },
+    showFreeSize: true
+  },
+  {
+    id: 4,
+    name: "Handloom Organic Linen Cotton Saree",
+    category: "Saree",
+    subCategory: "Cotton Saree",
+    price: 2299,
+    discountPrice: 1799,
+    image: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=800&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=800&q=80"
+    ],
+    description: "Breathable handloom linen cotton saree featuring hand-block prints and tassel detailing.",
+    material: "Linen Cotton",
+    rating: 4.6,
+    stock: 20,
+    sizeStock: { "Free Size": 20 },
+    sizePrices: { "Free Size": 1799 },
+    showFreeSize: true
+  },
+  {
+    id: 5,
+    name: "Royal Anarkali 3-Piece Kurti Set",
+    category: "Kurtis Collections",
+    subCategory: "Three piece set",
+    price: 2999,
+    discountPrice: 2299,
+    image: "https://images.unsplash.com/photo-1609357605129-26f69add5d6e?auto=format&fit=crop&w=800&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1609357605129-26f69add5d6e?auto=format&fit=crop&w=800&q=80"
+    ],
+    description: "Full flair flared Anarkali with pant and heavy organza dupatta, perfect for festive occasions.",
+    material: "Chanderi Silk Blend",
+    rating: 4.9,
+    stock: 12,
+    sizeStock: { "M": 4, "L": 5, "XL": 3 },
+    sizePrices: { "M": 2299, "L": 2299, "XL": 2299 },
+    showFreeSize: false
+  },
+  {
+    id: 6,
+    name: "Bandhani Printed Pure Cotton Dupatta",
+    category: "Dupatta",
+    subCategory: "Printed Cotton Dupatta",
+    price: 399,
+    discountPrice: 299,
+    image: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1566174053879-31528523f8ae?auto=format&fit=crop&w=800&q=80"
+    ],
+    description: "Vibrant ethnic Bandhani tie-dye printed dupatta with latkan border.",
+    material: "100% Cotton",
+    rating: 4.5,
+    stock: 35,
+    sizeStock: { "Free Size": 35 },
+    sizePrices: { "Free Size": 299 },
+    showFreeSize: true
+  }
+];
+
+const INITIAL_USERS: User[] = [
+  {
+    id: '1',
+    name: 'Radhe Admin',
+    email: 'admin@radheclothing.com',
+    role: 'admin',
+    isActive: true,
+    phone: '+91 9876543210',
+    address: 'Radhe Clothing House',
+    city: 'Chennai',
+    district: 'Chennai',
+    state: 'Tamil Nadu',
+    pincode: '600001'
+  }
+];
 
 interface CMSContextType {
   products: Product[]; orders: Order[]; users: User[]; categories: CategoryStructure; shippingRules: ShippingRulesMap; reviews: Review[];
@@ -49,6 +196,7 @@ interface CMSContextType {
   updateUserProfile: (id: string, data: Partial<User>) => void; 
   deleteUser: (id: string) => void; 
   toggleUserStatus: (id: string) => void;
+  addUser: (user: User) => void;
 
   addOrder: (order: Order) => void; 
   updateOrderStatus: (id: string, status: Order['status']) => void; 
@@ -68,216 +216,265 @@ interface CMSContextType {
 const CMSContext = createContext<CMSContextType | undefined>(undefined);
 
 export const CMSProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]); 
-  const [users, setUsers] = useState<User[]>([]);
-  const [categories, setCategories] = useState<CategoryStructure>({});
-  const [shippingRules, setShippingRules] = useState<ShippingRulesMap>({});
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [globalSettings, setGlobalSettings] = useState<GlobalSettings>(DEFAULT_GLOBAL_SETTINGS);
-  const [homeContent, setHomeContent] = useState<HomeContent>(DEFAULT_HOME_CONTENT);
-  const [aboutContent, setAboutContent] = useState<AboutContent>(DEFAULT_ABOUT_CONTENT);
-  const [contactContent, setContactContent] = useState<ContactContent>(DEFAULT_CONTACT_CONTENT);
-  const [adminCredentials, setAdminCredentials] = useState({ email: 'neelafashion@gmail.com', pass: 'admin-neela' });
+  const [products, setProducts] = useState<Product[]>(() => {
+    const saved = localStorage.getItem('rc_products');
+    return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
+  });
 
-  const fetchCategories = async () => {
-      try {
-          const res = await fetch(`${API_URL}/api/categories`);
-          const data = await res.json();
-          if (data.success) {
-              const newCats: CategoryStructure = {};
-              const newRules: ShippingRulesMap = {};
-              data.categories.forEach((cat: any) => {
-                  newCats[cat.name] = cat.subCategories || [];
-                  newRules[cat.name] = cat.shippingRules || [];
-              });
-              setCategories(newCats);
-              setShippingRules(newRules);
-          }
-      } catch (error) { console.error("Fetch Categories Error", error); }
-  };
+  const [orders, setOrders] = useState<Order[]>(() => {
+    const saved = localStorage.getItem('rc_orders');
+    return saved ? JSON.parse(saved) : [];
+  });
 
-  const fetchData = async () => {
-      await fetchCategories(); 
-      try {
-          const [prodRes, userRes, reviewRes, orderRes, homeRes, globalRes, aboutRes, contactRes, adminRes] = await Promise.all([
-              fetch(`${API_URL}/api/products`),
-              fetch(`${API_URL}/api/users`),
-              fetch(`${API_URL}/api/reviews`),
-              fetch(`${API_URL}/api/orders`),
-              fetch(`${API_URL}/api/cms/home`),
-              fetch(`${API_URL}/api/cms/global-settings`),
-              fetch(`${API_URL}/api/cms/about`),
-              fetch(`${API_URL}/api/cms/contact`),
-              fetch(`${API_URL}/api/admin/details`)
-          ]);
+  const [users, setUsers] = useState<User[]>(() => {
+    const saved = localStorage.getItem('rc_users');
+    return saved ? JSON.parse(saved) : INITIAL_USERS;
+  });
 
-          const prodData = await prodRes.json(); if(prodData.success) setProducts(prodData.products);
-          const userData = await userRes.json(); if(userData.success) setUsers(userData.users);
-          const reviewData = await reviewRes.json(); if(reviewData.success) setReviews(reviewData.reviews);
-          const orderData = await orderRes.json(); if(orderData.success) setOrders(orderData.orders);
-          const homeData = await homeRes.json(); if(homeData.success) setHomeContent(homeData.data);
-          const globalData = await globalRes.json(); if(globalData.success) setGlobalSettings({ ...DEFAULT_GLOBAL_SETTINGS, ...globalData.data });
-          const aboutData = await aboutRes.json(); if(aboutData.success) setAboutContent(aboutData.data);
-          const contactData = await contactRes.json(); if(contactData.success) setContactContent(contactData.data);
-          const adminData = await adminRes.json(); if(adminData.success) setAdminCredentials(prev => ({ ...prev, email: adminData.email }));
+  const [categories, setCategories] = useState<CategoryStructure>(() => {
+    const saved = localStorage.getItem('rc_categories');
+    return saved ? JSON.parse(saved) : CATEGORIES;
+  });
 
-      } catch (e) { console.error("Init Fetch Error", e); }
-  };
+  const [shippingRules, setShippingRules] = useState<ShippingRulesMap>(() => {
+    const saved = localStorage.getItem('rc_shipping_rules');
+    return saved ? JSON.parse(saved) : {};
+  });
 
-  useEffect(() => { fetchData(); }, []);
+  const [reviews, setReviews] = useState<Review[]>(() => {
+    const saved = localStorage.getItem('rc_reviews');
+    return saved ? JSON.parse(saved) : DEFAULT_HOME_CONTENT.testimonials.map((t, idx) => ({
+      id: String(idx + 1),
+      userName: t.author,
+      rating: 5,
+      comment: t.text,
+      createdAt: new Date().toISOString()
+    }));
+  });
 
-  useEffect(() => {
-     setShippingRules(prev => {
-         const newRules = { ...prev };
-         Object.keys(categories).forEach(cat => {
-             if (!newRules[cat]) {
-                 newRules[cat] = [
-                     { state: 'All States', minQty: 1, maxQty: 5, cost: 50, type: 'fixed' },
-                     { state: 'All States', minQty: 6, maxQty: 9999, cost: 0, type: 'fixed' }
-                 ];
-             }
-         });
-         return newRules;
-     });
-  }, [categories]);
+  const [globalSettings, setGlobalSettings] = useState<GlobalSettings>(() => {
+    const saved = localStorage.getItem('rc_global_settings');
+    return saved ? JSON.parse(saved) : DEFAULT_GLOBAL_SETTINGS;
+  });
+
+  const [homeContent, setHomeContent] = useState<HomeContent>(() => {
+    const saved = localStorage.getItem('rc_home_content');
+    return saved ? JSON.parse(saved) : DEFAULT_HOME_CONTENT;
+  });
+
+  const [aboutContent, setAboutContent] = useState<AboutContent>(() => {
+    const saved = localStorage.getItem('rc_about_content');
+    return saved ? JSON.parse(saved) : DEFAULT_ABOUT_CONTENT;
+  });
+
+  const [contactContent, setContactContent] = useState<ContactContent>(() => {
+    const saved = localStorage.getItem('rc_contact_content');
+    return saved ? JSON.parse(saved) : DEFAULT_CONTACT_CONTENT;
+  });
+
+  const [adminCredentials, setAdminCredentials] = useState(() => {
+    const saved = localStorage.getItem('rc_admin_creds');
+    return saved ? JSON.parse(saved) : { email: 'admin@radheclothing.com', pass: 'admin-radhe' };
+  });
+
+  // Sync to localStorage
+  useEffect(() => { localStorage.setItem('rc_products', JSON.stringify(products)); }, [products]);
+  useEffect(() => { localStorage.setItem('rc_orders', JSON.stringify(orders)); }, [orders]);
+  useEffect(() => { localStorage.setItem('rc_users', JSON.stringify(users)); }, [users]);
+  useEffect(() => { localStorage.setItem('rc_categories', JSON.stringify(categories)); }, [categories]);
+  useEffect(() => { localStorage.setItem('rc_shipping_rules', JSON.stringify(shippingRules)); }, [shippingRules]);
+  useEffect(() => { localStorage.setItem('rc_reviews', JSON.stringify(reviews)); }, [reviews]);
+  useEffect(() => { localStorage.setItem('rc_global_settings', JSON.stringify(globalSettings)); }, [globalSettings]);
+  useEffect(() => { localStorage.setItem('rc_home_content', JSON.stringify(homeContent)); }, [homeContent]);
+  useEffect(() => { localStorage.setItem('rc_about_content', JSON.stringify(aboutContent)); }, [aboutContent]);
+  useEffect(() => { localStorage.setItem('rc_contact_content', JSON.stringify(contactContent)); }, [contactContent]);
+  useEffect(() => { localStorage.setItem('rc_admin_creds', JSON.stringify(adminCredentials)); }, [adminCredentials]);
 
   // Actions
-  const addCategory = async (name: string, rules: ShippingRule[]) => {
-    try {
-        const res = await fetch(`${API_URL}/api/categories`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, rules }) });
-        const data = await res.json();
-        if (data.success) { toast.success("Category Added!"); fetchCategories(); } else { toast.error(data.message); }
-    } catch (error) { toast.error("Server Error"); }
+  const addCategory = (name: string, rules: ShippingRule[]) => {
+    setCategories(prev => ({ ...prev, [name]: prev[name] || [] }));
+    setShippingRules(prev => ({ ...prev, [name]: rules }));
+    toast.success("Category Added!");
   };
 
-  const updateCategory = async (oldName: string, newName: string, rules: ShippingRule[]) => {
-      try {
-          const res = await fetch(`${API_URL}/api/categories/${oldName}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ newName, rules }) });
-          const data = await res.json();
-          if (data.success) { toast.success("Category Updated!"); fetchCategories(); } else { toast.error("Update Failed"); }
-      } catch (error) { toast.error("Server Error"); }
+  const updateCategory = (oldName: string, newName: string, rules: ShippingRule[]) => {
+    setCategories(prev => {
+      const newCats = { ...prev };
+      const subs = newCats[oldName] || [];
+      delete newCats[oldName];
+      newCats[newName] = subs;
+      return newCats;
+    });
+    setShippingRules(prev => {
+      const newRules = { ...prev };
+      delete newRules[oldName];
+      newRules[newName] = rules;
+      return newRules;
+    });
+    toast.success("Category Updated!");
   };
 
-  const deleteCategory = async (name: string) => { try { await fetch(`${API_URL}/api/categories/${name}`, { method: 'DELETE' }); toast.success("Category Deleted!"); fetchCategories(); } catch (error) { toast.error("Server Error"); } };
+  const deleteCategory = (name: string) => {
+    setCategories(prev => { const n = { ...prev }; delete n[name]; return n; });
+    setShippingRules(prev => { const n = { ...prev }; delete n[name]; return n; });
+    toast.success("Category Deleted!");
+  };
   
-  const addSubCategory = async (categoryName: string, subCategoryName: string) => { try { await fetch(`${API_URL}/api/categories/${categoryName}/sub`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subCategory: subCategoryName }) }); toast.success("SubCategory Added!"); fetchCategories(); } catch (error) { toast.error("Server Error"); } };
-
-  // NEW: Delete Subcategory
-  const deleteSubCategory = async (categoryName: string, subCategoryName: string) => {
-      try {
-          // Logic: Get existing subs, remove the one to delete, then Update Category
-          const currentSubs = categories[categoryName] || [];
-          const updatedSubs = currentSubs.filter(s => s !== subCategoryName);
-          const currentRules = shippingRules[categoryName] || [];
-          
-          await fetch(`${API_URL}/api/categories/${categoryName}`, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ newName: categoryName, subCategories: updatedSubs, rules: currentRules })
-          });
-          toast.success("SubCategory Removed!");
-          fetchCategories();
-      } catch (error) {
-          toast.error("Failed to delete subcategory");
+  const addSubCategory = (categoryName: string, subCategoryName: string) => {
+    setCategories(prev => {
+      const current = prev[categoryName] || [];
+      if (!current.includes(subCategoryName)) {
+        return { ...prev, [categoryName]: [...current, subCategoryName] };
       }
+      return prev;
+    });
+    toast.success("SubCategory Added!");
   };
 
-  const addOrder = async (order: Order) => { try { const res = await fetch(`${API_URL}/api/orders`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(order) }); const d = await res.json(); if(d.success) fetchData(); } catch(e) { toast.error("Order Failed"); } };
-  const updateOrderStatus = async (id: string, status: Order['status']) => { try { await fetch(`${API_URL}/api/orders/${id}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) }); toast.success("Status Updated"); fetchData(); } catch(e) { toast.error("Update Failed"); } };
-  const cancelOrder = async (id: string) => { try { await fetch(`${API_URL}/api/orders/${id}/cancel`, { method: 'PUT' }); toast.success("Order Cancelled"); fetchData(); } catch(e) { toast.error("Cancel Failed"); } };
-  const deleteOrder = async (id: string) => { try { await fetch(`${API_URL}/api/orders/${id}`, { method: 'DELETE' }); toast.success("Deleted Permanently"); fetchData(); } catch(e) { toast.error("Delete Failed"); } };
+  const deleteSubCategory = (categoryName: string, subCategoryName: string) => {
+    setCategories(prev => {
+      const current = prev[categoryName] || [];
+      return { ...prev, [categoryName]: current.filter(s => s !== subCategoryName) };
+    });
+    toast.success("SubCategory Removed!");
+  };
+
+  const addOrder = (order: Order) => {
+    setOrders(prev => [order, ...prev]);
+    toast.success("Order Placed Successfully!");
+  };
+
+  const updateOrderStatus = (id: string, status: Order['status']) => {
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
+    toast.success("Order Status Updated!");
+  };
+
+  const cancelOrder = (id: string) => {
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, status: 'Cancelled' } : o));
+    toast.success("Order Cancelled");
+  };
+
+  const deleteOrder = (id: string) => {
+    setOrders(prev => prev.filter(o => o.id !== id));
+    toast.success("Order Deleted!");
+  };
   
-  const updateGlobalSettings = async (s: Partial<GlobalSettings>) => { const newSettings = { ...globalSettings, ...s }; setGlobalSettings(newSettings); try { await fetch(`${API_URL}/api/cms/global-settings`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: newSettings }) }); toast.success("Saved!"); } catch (error) { toast.error("Server Error"); } };
-  const updateHomeContent = async (c: Partial<HomeContent>) => { const newContent = { ...homeContent, ...c }; setHomeContent(newContent); try { await fetch(`${API_URL}/api/cms/home`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: newContent }) }); toast.success("Updated!"); } catch (error) { toast.error("Server Error"); } };
-  const updateAboutContent = async (c: Partial<AboutContent>) => { const newContent = { ...aboutContent, ...c }; setAboutContent(newContent); try { await fetch(`${API_URL}/api/cms/about`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: newContent }) }); toast.success("Updated!"); } catch (error) { toast.error("Server Error"); } };
-  const updateContactContent = async (c: Partial<ContactContent>) => { const newContent = { ...contactContent, ...c }; setContactContent(newContent); try { await fetch(`${API_URL}/api/cms/contact`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: newContent }) }); toast.success("Updated!"); } catch (error) { toast.error("Server Error"); } };
+  const updateGlobalSettings = (s: Partial<GlobalSettings>) => {
+    setGlobalSettings(prev => ({ ...prev, ...s }));
+    toast.success("Settings Saved!");
+  };
+
+  const updateHomeContent = (c: Partial<HomeContent>) => {
+    setHomeContent(prev => ({ ...prev, ...c }));
+    toast.success("Home Content Updated!");
+  };
+
+  const updateAboutContent = (c: Partial<AboutContent>) => {
+    setAboutContent(prev => ({ ...prev, ...c }));
+    toast.success("About Content Updated!");
+  };
+
+  const updateContactContent = (c: Partial<ContactContent>) => {
+    setContactContent(prev => ({ ...prev, ...c }));
+    toast.success("Contact Content Updated!");
+  };
   
   const addProduct = async (p: Product): Promise<boolean> => { 
-      try { 
-          const { id, ...pd } = p; 
-          const r = await fetch(`${API_URL}/api/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pd) }); 
-          const d = await r.json(); 
-          if (d.success) { 
-              toast.success(`Added: ${p.name}`); 
-              fetchData(); 
-              return true;
-          } 
-          return false;
-      } catch (error) { 
-          toast.error("Error adding product"); 
-          return false;
-      } 
+      const newId = products.length > 0 ? Math.max(...products.map(item => item.id)) + 1 : 1;
+      const newProduct = { ...p, id: newId };
+      setProducts(prev => [newProduct, ...prev]);
+      toast.success(`Added: ${p.name}`); 
+      return true;
   };
 
   const updateProduct = async (id: number, p: Partial<Product>): Promise<boolean> => { 
-      try { 
-          await fetch(`${API_URL}/api/products/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) }); 
-          toast.success("Updated!"); 
-          fetchData(); 
-          return true;
-      } catch (error) { 
-          toast.error("Error"); 
-          return false;
-      } 
+      setProducts(prev => prev.map(item => item.id === id ? { ...item, ...p } : item));
+      toast.success("Product Updated!"); 
+      return true;
   };
 
-  const deleteProduct = async (id: number) => { try { await fetch(`${API_URL}/api/products/${id}`, { method: 'DELETE' }); toast.success("Deleted!"); setProducts(prev => prev.filter(p => p.id !== id)); } catch (error) { toast.error("Error"); } };
-  const bulkDeleteProducts = async (ids: number[]) => { try { await fetch(`${API_URL}/api/products/bulk-delete`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids }) }); toast.success("Deleted!"); setProducts(prev => prev.filter(p => !ids.includes(p.id))); } catch (error) { toast.error("Error"); } };
+  const deleteProduct = async (id: number) => { 
+      setProducts(prev => prev.filter(p => p.id !== id));
+      toast.success("Product Deleted!"); 
+  };
+
+  const bulkDeleteProducts = async (ids: number[]) => { 
+      setProducts(prev => prev.filter(p => !ids.includes(p.id)));
+      toast.success("Products Deleted!"); 
+  };
   
   const importProducts = async (newProducts: Partial<Product>[]) => {
-      let successCount = 0;
+      let count = 0;
+      let nextId = products.length > 0 ? Math.max(...products.map(item => item.id)) + 1 : 1;
+      const toAdd: Product[] = [];
       for (const p of newProducts) {
-          try {
-              if(p.name && p.price && p.category) {
-                  const { id, ...pd } = p; 
-                  await fetch(`${API_URL}/api/products`, { 
-                      method: 'POST', 
-                      headers: { 'Content-Type': 'application/json' }, 
-                      body: JSON.stringify(pd) 
-                  });
-                  successCount++;
-              }
-          } catch (e) { console.error("Import error for", p.name); }
-      }
-      if (successCount > 0) {
-          toast.success(`${successCount} Products Imported Successfully!`);
-          fetchData();
-      } else {
-          toast.error("No valid products found to import.");
-      }
-  };
-
-  const deleteUser = async (id: string) => { try { const r = await fetch(`${API_URL}/api/users/${id}`, { method: 'DELETE' }); const d = await r.json(); if (d.success) { toast.success("Deleted!"); fetchData(); } else toast.error(d.message); } catch (error) { toast.error("Error"); } };
-  const toggleUserStatus = async (id: string) => { try { const r = await fetch(`${API_URL}/api/users/${id}/status`, { method: 'PUT' }); const d = await r.json(); if (d.success) { toast.success(d.message); fetchData(); } else toast.error(d.message); } catch (error) { toast.error("Error"); } };
-  const updateUserProfile = async (id: string, d: Partial<User>) => { 
-      try {
-          const res = await fetch(`${API_URL}/api/users/${id}`, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(d)
-          });
-          const data = await res.json();
-          if (data.success) {
-              setUsers(prev => prev.map(u => u.id === id ? { ...u, ...d } : u));
-              toast.success("Address Saved!");
-          } else {
-              toast.error("Failed to save address.");
+          if (p.name && p.price && p.category) {
+              toAdd.push({
+                  id: nextId++,
+                  name: p.name,
+                  category: p.category,
+                  subCategory: p.subCategory || '',
+                  price: p.price,
+                  discountPrice: p.discountPrice,
+                  image: p.image || 'https://picsum.photos/400/600',
+                  images: p.images || [p.image || 'https://picsum.photos/400/600'],
+                  description: p.description || '',
+                  material: p.material || 'Cotton',
+                  rating: p.rating || 4.5,
+                  stock: p.stock || 10
+              });
+              count++;
           }
-      } catch (error) {
-          toast.error("Connection Error");
+      }
+      if (toAdd.length > 0) {
+          setProducts(prev => [...toAdd, ...prev]);
+          toast.success(`${count} Products Imported!`);
       }
   };
 
-  const addReview = async (r: Review) => { try { const { id, ...rd } = r; await fetch(`${API_URL}/api/reviews`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(rd) }); toast.success("Submitted!"); fetchData(); } catch (error) { toast.error("Error"); } };
-  const deleteReview = async (id: string) => { try { await fetch(`${API_URL}/api/reviews/${id}`, { method: 'DELETE' }); toast.success("Deleted!"); fetchData(); } catch (error) { toast.error("Error"); } };
-  const updateAdminCredentials = (creds: {email: string, pass: string}) => setAdminCredentials(creds);
+  const addUser = (newUser: User) => {
+    setUsers(prev => {
+      const exists = prev.some(u => u.email === newUser.email);
+      if (!exists) return [...prev, newUser];
+      return prev.map(u => u.email === newUser.email ? { ...u, ...newUser } : u);
+    });
+  };
+
+  const deleteUser = (id: string) => { 
+      setUsers(prev => prev.filter(u => u.id !== id));
+      toast.success("User Deleted!"); 
+  };
+
+  const toggleUserStatus = (id: string) => { 
+      setUsers(prev => prev.map(u => u.id === id ? { ...u, isActive: !u.isActive } : u));
+      toast.success("Status Toggled!"); 
+  };
+
+  const updateUserProfile = (id: string, d: Partial<User>) => { 
+      setUsers(prev => prev.map(u => u.id === id ? { ...u, ...d } : u));
+      toast.success("Profile Updated!");
+  };
+
+  const addReview = (r: Review) => { 
+      setReviews(prev => [r, ...prev]);
+      toast.success("Review Submitted!"); 
+  };
+
+  const deleteReview = (id: string) => { 
+      setReviews(prev => prev.filter(r => r.id !== id));
+      toast.success("Review Deleted!"); 
+  };
+
+  const updateAdminCredentials = (creds: {email: string, pass: string}) => {
+      setAdminCredentials(creds);
+      toast.success("Admin Credentials Updated!");
+  };
 
   return (
     <CMSContext.Provider value={{
       products, orders, users, categories, shippingRules, reviews, globalSettings, homeContent, aboutContent, contactContent, adminCredentials,
       addProduct, updateProduct, deleteProduct, bulkDeleteProducts, importProducts,
-      addCategory, updateCategory, deleteCategory, addSubCategory, deleteSubCategory, updateUserProfile, deleteUser, toggleUserStatus, 
+      addCategory, updateCategory, deleteCategory, addSubCategory, deleteSubCategory, updateUserProfile, deleteUser, toggleUserStatus, addUser,
       addOrder, updateOrderStatus, cancelOrder, deleteOrder,
       addReview, deleteReview,
       updateGlobalSettings, updateHomeContent, updateAboutContent, updateContactContent, updateAdminCredentials

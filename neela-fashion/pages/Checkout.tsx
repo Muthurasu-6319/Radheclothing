@@ -25,15 +25,15 @@ const AddressFormFields = ({ form, onChange, disabled }: { form: ShippingDetails
 );
 
 const Checkout: React.FC = () => {
-    const { cart, cartTotal, taxAmount } = useCart();
+    const { cart, cartTotal, taxAmount, clearCart } = useCart();
     const { shippingRules, addOrder, globalSettings, updateUserProfile, users } = useCMS();
     const { user, isAuthenticated } = useAuth();
+    const navigate = useNavigate();
     const location = useLocation();
 
     const [loading, setLoading] = useState(false);
     const [calculatedShipping, setCalculatedShipping] = useState(0);
     const [isAddressSaved, setIsAddressSaved] = useState(false);
-    const paymentMethod = 'Prepaid';
     const [sameAsBilling, setSameAsBilling] = useState(true);
     const [saveAddressForNextTime, setSaveAddressForNextTime] = useState(false);
     const [orderNotes, setOrderNotes] = useState('');
@@ -44,7 +44,6 @@ const Checkout: React.FC = () => {
 
     const [shippingForm, setShippingForm] = useState<ShippingDetails>(billingForm);
 
-    // AUTO-FILL LOGIC: Fetch user details and fill all fields including District
     useEffect(() => {
         if (isAuthenticated && user && users.length > 0) {
             const freshUser = users.find(u => String(u.id) === String(user.id));
@@ -57,24 +56,13 @@ const Checkout: React.FC = () => {
                     phone: freshUser.phone || '',
                     address: freshUser.address || '',
                     city: freshUser.city || '',
-                    district: freshUser.district || '', // FILL DISTRICT
+                    district: freshUser.district || '',
                     state: freshUser.state || 'Tamil Nadu',
                     pincode: freshUser.pincode || ''
                 }));
             }
         }
     }, [user, users, isAuthenticated]);
-
-    // Handle Payment Failure Redirects
-    useEffect(() => {
-        const queryParams = new URLSearchParams(location.search);
-        const status = queryParams.get('status');
-        if (status === 'failed') {
-            toast.error("Payment Failed. Your order is placed but payment is pending. Please try again.");
-        } else if (status === 'error') {
-            toast.error("Payment Gateway Error. Please try again or contact support.");
-        }
-    }, [location]);
 
     useEffect(() => { if (sameAsBilling) setShippingForm(billingForm); }, [billingForm, sameAsBilling]);
     useEffect(() => { setIsAddressSaved(false); setCalculatedShipping(0); }, [cart]);
@@ -101,54 +89,45 @@ const Checkout: React.FC = () => {
             }
         });
 
+        const getRuleCost = (rules: any[], qty: number) => {
+            const stateRules = rules.filter(r => r.state === targetState || r.state === 'All States');
+            const matched = stateRules.find(r => qty >= r.minQty && qty <= r.maxQty);
+            return matched ? matched.cost : 0;
+        };
+
         if (pranjulNightyQty > 0) {
-            if (targetState === 'Tamil Nadu') {
-                if (pranjulNightyQty >= 3) totalShipping += 0; else totalShipping += 30;
-            } else {
-                if (pranjulNightyQty <= 4) totalShipping += 45;
-                else totalShipping += 45 + ((pranjulNightyQty - 4) * 10);
-            }
+            const nightyRules = shippingRules['Nighty'] || [];
+            totalShipping += getRuleCost(nightyRules, pranjulNightyQty);
         }
 
         if (pranjulCollectionQty > 0) {
-            if (targetState === 'Tamil Nadu') totalShipping += 40 + ((pranjulCollectionQty - 1) * 20);
-            else totalShipping += 65 + ((pranjulCollectionQty - 1) * 25);
+            const readymadeRules = shippingRules['Readymade'] || shippingRules['Kurtis Collections'] || [];
+            totalShipping += getRuleCost(readymadeRules, pranjulCollectionQty);
         }
 
-        Object.entries(otherCategoryGroups).forEach(([category, qty]) => {
-            const rules = shippingRules[category];
-            let matchedRule = undefined;
-
-            if (rules && rules.length > 0) {
-                matchedRule = rules.find(r => r.state === targetState && qty >= r.minQty && qty <= r.maxQty);
-                if (!matchedRule && targetState !== 'Tamil Nadu') matchedRule = rules.find(r => r.state === 'Other States' && qty >= r.minQty && qty <= r.maxQty);
-                if (!matchedRule) matchedRule = rules.find(r => r.state === 'All States' && qty >= r.minQty && qty <= r.maxQty);
-
-                if (matchedRule) {
-                    let cost = matchedRule.cost;
-                    if (matchedRule.type === 'per_piece') cost = matchedRule.cost * qty;
-                    else if (matchedRule.type === 'every_2') cost = matchedRule.cost * Math.ceil(qty / 2);
-                    else if (matchedRule.type === 'every_3') cost = matchedRule.cost * Math.ceil(qty / 3);
-                    else if (matchedRule.type === 'every_10') cost = matchedRule.cost * Math.ceil(qty / 10);
-                    totalShipping += cost;
-                } else totalShipping += 50;
-            } else totalShipping += 50;
+        Object.entries(otherCategoryGroups).forEach(([catName, qty]) => {
+            const catRules = shippingRules[catName] || [
+                { state: 'All States', minQty: 1, maxQty: 5, cost: 50, type: 'fixed' },
+                { state: 'All States', minQty: 6, maxQty: 9999, cost: 0, type: 'fixed' }
+            ];
+            totalShipping += getRuleCost(catRules, qty);
         });
 
-        setCalculatedShipping(totalShipping);
-        setIsAddressSaved(true);
+        return totalShipping;
     };
 
     const handleAddressSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        calculateShippingCost();
+        const cost = calculateShippingCost();
+        setCalculatedShipping(cost);
+        setIsAddressSaved(true);
+        toast.success("Shipping & Delivery Details Saved!");
 
-        // SAVE ADDRESS (Includes District)
         if (saveAddressForNextTime && isAuthenticated && user) {
             updateUserProfile(user.id, {
                 address: billingForm.address,
                 city: billingForm.city,
-                district: billingForm.district, // SAVING DISTRICT
+                district: billingForm.district,
                 state: billingForm.state,
                 pincode: billingForm.pincode,
                 phone: billingForm.phone
@@ -168,61 +147,39 @@ const Checkout: React.FC = () => {
             userName: `${billingForm.firstName} ${billingForm.lastName}`,
             date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
             total: Number(finalPayable.toFixed(2)),
-            status: 'Pending',
-            paymentMethod: 'Prepaid',
+            status: 'Confirmed',
+            paymentMethod: 'Pay on Delivery / Direct Order',
             items: cart,
             billingDetails: billingForm,
             shippingDetails: shippingForm,
             notes: orderNotes
         };
 
-        await addOrder(newOrder);
-
-        try {
-            const response = await fetch(`${API_URL}/api/payment/pay`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    orderId: orderId,
-                    amount: finalPayable,
-                    userId: user?.id || 'GUEST',
-                    mobileNumber: billingForm.phone
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.success && data.url) {
-                window.location.href = data.url;
-            } else {
-                toast.error("Payment Initiation Failed.");
-                setLoading(false);
-            }
-        } catch (error) {
-            console.error("Payment Error", error);
-            toast.error("Server Error in Payment");
-            setLoading(false);
-        }
+        addOrder(newOrder);
+        clearCart();
+        toast.success("Order Placed Successfully!");
+        setLoading(false);
+        navigate('/order-success', { state: { order: newOrder } });
     };
 
     return (
-        <div className="min-h-screen bg-sand-50 pt-40 pb-20">
+        <div className="min-h-screen bg-white pt-40 pb-20">
             <div className="container mx-auto px-6 md:px-12">
                 <div className="flex flex-col lg:flex-row gap-12 max-w-7xl mx-auto">
                     <div className="lg:w-2/3">
                         <div className="flex items-center justify-between mb-8">
-                            <h1 className="text-3xl font-serif text-navy-900">Checkout</h1>
-                            <div className="flex items-center text-green-700 bg-green-50 px-3 py-1 rounded-full text-xs font-medium">
-                                <Lock size={12} className="mr-1" /> SSL Secured
+                            <h1 className="text-3xl font-serif text-krishna-900">Checkout</h1>
+                            <div className="flex items-center text-peacock-700 bg-peacock-50 px-3 py-1 rounded-full text-xs font-medium">
+                                <Lock size={12} className="mr-1" /> Local Secure Order
                             </div>
                         </div>
 
                         <div className="space-y-8">
-                            <form onSubmit={handleAddressSubmit} className={`bg-white p-8 shadow-sm border-t-4 ${isAddressSaved ? 'border-green-500' : 'border-gray-200'} transition-colors duration-500 relative`}>
+                            <form onSubmit={handleAddressSubmit} className={`bg-white p-8 shadow-sm border-t-4 ${isAddressSaved ? 'border-peacock-500' : 'border-gray-200'} transition-colors duration-500 relative`}>
                                 {isAddressSaved && (<div className="absolute inset-0 bg-white/60 z-10 flex items-center justify-center backdrop-blur-[1px]"></div>)}
                                 <div className="mb-12">
                                     <div className="flex justify-between items-center mb-6 relative z-20">
-                                        <div className="flex items-center gap-2"><div className="w-8 h-8 rounded-full bg-navy-900 text-white flex items-center justify-center font-bold text-sm">1</div><h2 className="text-lg font-bold uppercase tracking-widest text-navy-900">Billing Address</h2></div>
+                                        <div className="flex items-center gap-2"><div className="w-8 h-8 rounded-full bg-krishna-800 text-white flex items-center justify-center font-bold text-sm">1</div><h2 className="text-lg font-bold uppercase tracking-widest text-krishna-900">Billing Address</h2></div>
                                     </div>
                                     <AddressFormFields form={billingForm} onChange={(e) => setBillingForm({ ...billingForm, [e.target.name]: e.target.value })} disabled={isAddressSaved} />
                                 </div>
@@ -231,8 +188,8 @@ const Checkout: React.FC = () => {
 
                                 <div className="mb-6">
                                     <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 relative z-20 gap-4">
-                                        <div className="flex items-center gap-2"><div className="w-8 h-8 rounded-full bg-navy-900 text-white flex items-center justify-center font-bold text-sm">2</div><h2 className="text-lg font-bold uppercase tracking-widest text-navy-900">Delivery Address</h2></div>
-                                        <label className="flex items-center cursor-pointer"><input type="checkbox" checked={sameAsBilling} onChange={(e) => setSameAsBilling(e.target.checked)} disabled={isAddressSaved} className="w-4 h-4 text-navy-900 focus:ring-navy-900 rounded border-gray-300" /><span className="ml-2 text-sm text-gray-600 font-medium">Same as Billing Address</span></label>
+                                        <div className="flex items-center gap-2"><div className="w-8 h-8 rounded-full bg-krishna-800 text-white flex items-center justify-center font-bold text-sm">2</div><h2 className="text-lg font-bold uppercase tracking-widest text-krishna-900">Delivery Address</h2></div>
+                                        <label className="flex items-center cursor-pointer"><input type="checkbox" checked={sameAsBilling} onChange={(e) => setSameAsBilling(e.target.checked)} disabled={isAddressSaved} className="w-4 h-4 text-krishna-800 focus:ring-krishna-800 rounded border-gray-300" /><span className="ml-2 text-sm text-gray-600 font-medium">Same as Billing Address</span></label>
                                     </div>
                                     {!sameAsBilling && (<div className="animate-fade-in"><AddressFormFields form={shippingForm} onChange={(e) => setShippingForm({ ...shippingForm, [e.target.name]: e.target.value })} disabled={isAddressSaved} /></div>)}
                                 </div>
@@ -240,44 +197,47 @@ const Checkout: React.FC = () => {
                                 {isAuthenticated && (
                                     <div className="mb-6 relative z-20">
                                         <label className="flex items-center cursor-pointer p-4 bg-gray-50 rounded border border-gray-100 hover:border-gold-300 transition-colors">
-                                            <input type="checkbox" checked={saveAddressForNextTime} onChange={(e) => setSaveAddressForNextTime(e.target.checked)} disabled={isAddressSaved} className="w-4 h-4 text-navy-900 focus:ring-navy-900 rounded border-gray-300" />
-                                            <span className="ml-3 text-sm text-navy-900 font-medium flex items-center"><Save size={16} className="mr-2 text-gold-600" /> Save this address for next time</span>
+                                            <input type="checkbox" checked={saveAddressForNextTime} onChange={(e) => setSaveAddressForNextTime(e.target.checked)} disabled={isAddressSaved} className="w-4 h-4 text-krishna-800 focus:ring-krishna-800 rounded border-gray-300" />
+                                            <span className="ml-3 text-sm text-krishna-900 font-medium flex items-center"><Save size={16} className="mr-2 text-gold-600" /> Save this address for next time</span>
                                         </label>
                                     </div>
                                 )}
 
                                 <div className="mb-6 relative z-20">
                                     <label className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2 block">Order Notes (Optional)</label>
-                                    <textarea value={orderNotes} onChange={(e) => setOrderNotes(e.target.value)} placeholder="Notes about your order..." className="w-full border border-gray-300 rounded p-4 text-sm focus:border-navy-900 outline-none bg-white text-navy-900 h-24 resize-none" disabled={isAddressSaved} />
+                                    <textarea value={orderNotes} onChange={(e) => setOrderNotes(e.target.value)} disabled={isAddressSaved} placeholder="Notes about your order..." className="w-full border border-gray-200 rounded p-3 text-sm outline-none focus:border-krishna-800 bg-white text-krishna-900 h-20" />
                                 </div>
 
-                                <div className="relative z-20">
-                                    {!isAddressSaved ? (
-                                        <button type="submit" className="mt-8 w-full bg-navy-900 text-white py-4 uppercase font-bold tracking-widest text-xs hover:bg-gold-600 transition-colors">Save Addresses & Calculate Shipping</button>
-                                    ) : (
-                                        <button type="button" onClick={(e) => { e.preventDefault(); setIsAddressSaved(false); }} className="mt-8 w-full border border-navy-900 text-navy-900 py-3 uppercase font-bold tracking-widest text-xs hover:bg-navy-50 transition-colors flex items-center justify-center">Edit Addresses <span className="ml-2 text-green-600 flex items-center text-[10px] normal-case"><CheckCircle size={12} className="mr-1" /> Currently Saved</span></button>
-                                    )}
-                                </div>
+                                {!isAddressSaved ? (
+                                    <button type="submit" className="w-full bg-krishna-800 text-white py-4 uppercase font-bold tracking-widest text-xs hover:bg-peacock-600 transition-colors shadow-md relative z-20">
+                                        Save Address & Calculate Shipping
+                                    </button>
+                                ) : (
+                                    <div className="flex justify-between items-center relative z-20 pt-4 border-t border-gray-100">
+                                        <span className="text-xs font-bold text-peacock-700 flex items-center"><CheckCircle size={16} className="mr-1" /> Address & Shipping Saved</span>
+                                        <button type="button" onClick={() => setIsAddressSaved(false)} className="text-xs text-krishna-800 underline font-bold hover:text-peacock-600">Edit Address</button>
+                                    </div>
+                                )}
                             </form>
 
                             {isAddressSaved && (
-                                <div className="bg-white p-8 shadow-sm border-t-4 border-navy-900 animate-fade-in-up">
-                                    <div className="flex items-center gap-2 mb-6"><div className="w-8 h-8 rounded-full bg-navy-900 text-white flex items-center justify-center font-bold text-sm">3</div><h2 className="text-lg font-bold uppercase tracking-widest text-navy-900">Payment Method</h2></div>
+                                <div className="bg-white p-8 shadow-sm border-t-4 border-krishna-800 animate-fade-in-up">
+                                    <div className="flex items-center gap-2 mb-6"><div className="w-8 h-8 rounded-full bg-krishna-800 text-white flex items-center justify-center font-bold text-sm">3</div><h2 className="text-lg font-bold uppercase tracking-widest text-krishna-900">Order Method</h2></div>
                                     <div className="space-y-4 mb-8">
-                                        <label className="flex items-center justify-between p-4 border border-navy-900 bg-navy-50 cursor-pointer transition-colors">
+                                        <label className="flex items-center justify-between p-4 border border-krishna-800 bg-krishna-50 cursor-pointer transition-colors rounded-sm">
                                             <div className="flex items-center">
-                                                <input type="radio" checked readOnly className="text-navy-900 focus:ring-navy-900" />
+                                                <input type="radio" checked readOnly className="text-krishna-800 focus:ring-krishna-800" />
                                                 <div className="ml-3">
-                                                    <div className="flex items-center gap-2"><span className="font-bold text-navy-900 text-lg">Pay with PhonePe</span><span className="bg-purple-600 text-white text-[9px] px-1.5 py-0.5 rounded uppercase font-bold">Fast</span></div>
-                                                    <p className="text-xs text-gray-500 mt-1 flex items-center gap-2"><Smartphone size={14} /> UPI, Credit/Debit Cards, NetBanking</p>
+                                                    <div className="flex items-center gap-2"><span className="font-bold text-krishna-900 text-base">Pay on Delivery / Direct Order</span><span className="bg-peacock-600 text-white text-[9px] px-2 py-0.5 rounded uppercase font-bold">Fast</span></div>
+                                                    <p className="text-xs text-gray-500 mt-1 flex items-center gap-2"><CheckCircle size={14} className="text-peacock-600" /> Instant confirmation & digital receipt generation</p>
                                                 </div>
                                             </div>
-                                            <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-700"><Smartphone size={18} /></div>
+                                            <div className="w-8 h-8 rounded-full bg-peacock-100 flex items-center justify-center text-peacock-700"><CheckCircle size={18} /></div>
                                         </label>
                                     </div>
 
-                                    <button onClick={handleFinalPayment} disabled={loading} className="w-full bg-navy-900 text-white py-5 uppercase tracking-widest font-bold hover:bg-gold-600 border border-transparent transition-all duration-300 shadow-lg disabled:opacity-70 flex justify-center items-center">
-                                        {loading ? 'Processing...' : `Proceed to Pay ₹${finalPayable.toFixed(2)}`}
+                                    <button onClick={handleFinalPayment} disabled={loading} className="w-full bg-krishna-800 text-white py-5 uppercase tracking-widest font-bold hover:bg-peacock-600 border border-transparent transition-all duration-300 shadow-lg disabled:opacity-70 flex justify-center items-center">
+                                        {loading ? 'Processing...' : `Place Order - ₹${finalPayable.toFixed(2)}`}
                                     </button>
                                 </div>
                             )}

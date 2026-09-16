@@ -17,21 +17,43 @@ const Login: React.FC = () => {
     e.preventDefault();
     
     if(email && password) {
-        // Call API Login via Context
         const success = await login(email, password);
         
         if (success) {
-            toast.success("Welcome back to Neela Fashion!", {
+            const isAdminLogin = (email === 'admin@radheclothing.com' || email === 'neelafashion@gmail.com');
+            toast.success(isAdminLogin ? "Welcome Admin to Radhe Clothing Portal!" : "Welcome back to Radhe Clothing!", {
                 duration: 3000,
                 icon: '👋',
                 style: {
-                    background: '#1e2a4a',
+                    background: '#0f4c81',
                     color: '#fff',
                 }
             });
-            navigate('/'); 
+            if (isAdminLogin) {
+              navigate('/admin');
+            } else {
+              navigate('/'); 
+            }
         }
-        // Error toast is already handled in AuthContext, but we can keep this safe
+    }
+  };
+
+  const handleAdminQuickLogin = async () => {
+    const adminEmail = 'admin@radheclothing.com';
+    const adminPass = 'admin-radhe';
+    setEmail(adminEmail);
+    setPassword(adminPass);
+    const success = await login(adminEmail, adminPass);
+    if (success) {
+      toast.success("Logged in as Admin!", {
+        duration: 3000,
+        icon: '👑',
+        style: {
+          background: '#059669',
+          color: '#fff',
+        }
+      });
+      navigate('/admin');
     }
   };
 
@@ -64,9 +86,24 @@ const Login: React.FC = () => {
 
          {/* Right Side - Form */}
          <div className="p-10 md:p-16 flex flex-col justify-center">
-             <div className="text-center md:text-left mb-10">
+             <div className="text-center md:text-left mb-8">
                  <h3 className="text-2xl font-serif font-bold text-navy-900 mb-2">Sign In</h3>
-                 <p className="text-gray-500 text-sm">Enter your details to access your account</p>
+                 <p className="text-gray-500 text-sm">Enter your details to access your account or Admin Console</p>
+             </div>
+
+             {/* Quick Admin Access Banner */}
+             <div className="mb-6 p-4 bg-krishna-50 border border-krishna-200 rounded-lg flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-krishna-900">Need Admin Access?</p>
+                  <p className="text-[11px] text-gray-600">Click below to log in as Store Admin</p>
+                </div>
+                <button 
+                  type="button" 
+                  onClick={handleAdminQuickLogin}
+                  className="bg-krishna-800 hover:bg-peacock-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-2 rounded transition-colors shadow-sm"
+                >
+                  Admin Login
+                </button>
              </div>
 
              <form onSubmit={handleSubmit} className="space-y-6">
@@ -82,7 +119,7 @@ const Login: React.FC = () => {
                          value={email}
                          onChange={(e) => setEmail(e.target.value)}
                          className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gold-500/20 focus:border-gold-600 outline-none transition-all text-navy-900 bg-white focus:bg-white"
-                         placeholder="name@company.com"
+                         placeholder="admin@radheclothing.com or customer@email.com"
                        />
                     </div>
                  </div>
@@ -90,7 +127,6 @@ const Login: React.FC = () => {
                  <div>
                     <div className="flex justify-between mb-2">
                         <label className="block text-xs font-bold uppercase tracking-widest text-gray-500">Password</label>
-                        <a href="#" className="text-xs text-gold-600 hover:text-navy-900 transition-colors font-medium">Forgot password?</a>
                     </div>
                     <div className="relative group">
                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

@@ -17,17 +17,17 @@ const CMS = sequelize.define('CMS', {
 
 // 2. Default Data
 const DEFAULT_HOME_CONTENT = {
-    heroTitle: 'Classic Aura',
-    heroSubtitle: 'Experience the epitome of craftsmanship. Where timeless tradition meets modern luxury.',
-    heroImage: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?q=80&w=1924&auto=format&fit=crop',
-    marqueeText: ["Handcrafted Heritage", "Luxury Redefined", "Pure Gold Zari", "Timeless Elegance"],
-    sectionTitleTrends: 'Curated Trends',
-    sectionTitleFeatured: 'Trending Now',
-    sectionTitleTestimonials: 'Voices of Elegance',
+    heroTitle: 'Radhe Clothing',
+    heroSubtitle: 'Sacred Elegance & Timeless Luxury Fashion. Experience authentic craftsmanship inspired by royal traditions.',
+    heroImage: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?q=80&w=1924&auto=format&fit=crop',
+    marqueeText: ["Radhe Clothing", "Peacock Grace", "Royal Silk Sarees", "Krishna Heritage", "Timeless Elegance"],
+    sectionTitleTrends: 'Curated Collections',
+    sectionTitleFeatured: 'Trending Grace',
+    sectionTitleTestimonials: 'Voices of Radhe',
     testimonials: [
-      { id: 1, text: "Absolutely stunning craftsmanship. The saree I ordered for my wedding was beyond my expectations.", author: "Ananya S.", role: "Verified Buyer" },
-      { id: 2, text: "Neela has completely redefined luxury ethnic wear. The attention to detail in the embroidery is unmatched.", author: "Priya M.", role: "Fashion Blogger" },
-      { id: 3, text: "The customer service is as impeccable as the clothes. They helped me choose the perfect gift.", author: "Rohan K.", role: "Loyal Customer" },
+      { id: 1, text: "Absolutely stunning craftsmanship. The silk saree I ordered for the festival was beyond my expectations.", author: "Ananya S.", role: "Verified Buyer" },
+      { id: 2, text: "Radhe Clothing has redefined luxury ethnic wear. The vibrant colors and embroidery are unmatched.", author: "Priya M.", role: "Fashion Enthusiast" },
+      { id: 3, text: "Impeccable service and fabric quality. Will definitely buy again!", author: "Rohan K.", role: "Loyal Customer" },
     ],
     trendImages: {
       large: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?q=80&w=1000',
@@ -37,24 +37,23 @@ const DEFAULT_HOME_CONTENT = {
 };
 
 const DEFAULT_GLOBAL_SETTINGS = {
-    logoUrl: 'https://i.ibb.co/jJ5z8y2/neela-logo-mock.png', 
-    siteName: 'Neela Fashion',
+    logoUrl: '/logo.png', 
+    siteName: 'Radhe Clothing',
     currency: '₹',
-    logoWidth: '80px',
+    logoWidth: '150px',
     taxRate: 5
 };
 
 const DEFAULT_ABOUT_CONTENT = {
-    title: 'Weaving Stories in Every Thread',
-    description: 'Neela Fashion was born from a desire to preserve the dying art of traditional handloom while adapting it for the contemporary woman. \n\n We believe in sustainable fashion that empowers local artisans.',
+    title: 'Sacred Weaves & Timeless Grace',
+    description: 'Radhe Clothing was born from a passion to blend heritage handloom elegance with contemporary royal aesthetics. \n\n We craft pure silk sarees, designer kurti sets, and handloom apparel inspired by divine Indian traditions.',
     heroImage: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=2000'
 };
 
-// NEW: Default Contact Content
 const DEFAULT_CONTACT_CONTENT = {
-    address: 'Neela Fashion House, 123 Silk Avenue, Bangalore, Karnataka 560001',
+    address: 'Radhe Clothing House, Main Fashion Avenue, India',
     phone: '+91 98765 43210',
-    email: 'concierge@neela.com',
+    email: 'support@radheclothing.com',
     mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3888.001696423075!2d77.59456271482193!3d12.97159879085577!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae1670c9b44e6d%3A0xf8dfc3e8517e4fe0!2sBengaluru%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1629361234567!5m2!1sen!2sin',
     heroImage: 'https://www.transparenttextures.com/patterns/cubes.png'
 };

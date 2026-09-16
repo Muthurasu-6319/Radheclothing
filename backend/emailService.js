@@ -72,7 +72,7 @@ const sendCustomerStatusEmail = async (toEmail, customerName, orderId, status) =
     <head><style>${getBaseStyles()}</style></head>
     <body>
         <div class="container">
-            <div class="header"><h1>Neela Fashion</h1></div>
+            <div class="header" style="background-color: #0f4c81; color: #f59e0b;"><h1>Radhe Clothing</h1></div>
             <div class="content">
                 <p style="font-size: 18px;">Hello <strong>${customerName}</strong>,</p>
                 <p>${message}</p>
@@ -84,14 +84,14 @@ const sendCustomerStatusEmail = async (toEmail, customerName, orderId, status) =
                 <p>We are committed to delivering luxury & excellence to your doorstep.</p>
                 <div style="text-align: center;"><a href="${FRONTEND_URL}" class="btn">Visit Store</a></div>
             </div>
-            <div class="footer"><p>&copy; ${new Date().getFullYear()} Neela Fashion.</p></div>
+            <div class="footer"><p>&copy; ${new Date().getFullYear()} Radhe Clothing.</p></div>
         </div>
     </body>
     </html>`;
 
     try {
         await transporter.sendMail({
-            from: `"Neela Fashion" <${process.env.SMTP_USER}>`,
+            from: `"Radhe Clothing" <${process.env.SMTP_USER}>`,
             to: toEmail,
             subject: subject,
             html: htmlTemplate
@@ -113,7 +113,7 @@ const sendAdminNotification = async (orderData, orderId) => {
     <head><style>${getBaseStyles()}</style></head>
     <body>
         <div class="container">
-            <div class="header" style="background-color: #000; color: #fff;"><h1>NEW ORDER ALERT 🔔</h1></div>
+            <div class="header" style="background-color: #0f4c81; color: #fff;"><h1>NEW ORDER ALERT 🔔</h1></div>
             <div class="content">
                 <p style="font-size: 18px;">Hello Admin,</p>
                 <p>You have received a new order! Time to get packing.</p>
@@ -128,14 +128,14 @@ const sendAdminNotification = async (orderData, orderId) => {
                     <a href="${FRONTEND_URL}/#/admin" class="btn">View in Admin Panel</a>
                 </div>
             </div>
-            <div class="footer"><p>Neela Fashion Automated System</p></div>
+            <div class="footer"><p>Radhe Clothing Automated System</p></div>
         </div>
     </body>
     </html>`;
 
     try {
         await transporter.sendMail({
-            from: `"Neela System" <${process.env.SMTP_USER}>`,
+            from: `"Radhe System" <${process.env.SMTP_USER}>`,
             to: adminEmail,
             subject: `🔔 New Order Received: #${orderId} from ${orderData.userName}`,
             html: htmlTemplate
@@ -154,7 +154,7 @@ const sendContactInquiry = async (toEmail, inquiryData) => {
     <head><style>${getBaseStyles()}</style></head>
     <body>
         <div class="container">
-            <div class="header" style="background-color: #1e2a4a; color: #fff;"><h1>NEW INQUIRY 📩</h1></div>
+            <div class="header" style="background-color: #0f4c81; color: #fff;"><h1>NEW INQUIRY 📩</h1></div>
             <div class="content">
                 <p>Hello,</p>
                 <p>You have received a new inquiry from the website Contact Form.</p>
@@ -166,7 +166,7 @@ const sendContactInquiry = async (toEmail, inquiryData) => {
                     <p style="font-style: italic; color: #555;">"${inquiryData.message}"</p>
                 </div>
             </div>
-            <div class="footer"><p>Neela Fashion Automated System</p></div>
+            <div class="footer"><p>Radhe Clothing Automated System</p></div>
         </div>
     </body>
     </html>`;

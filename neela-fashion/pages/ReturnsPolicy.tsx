@@ -12,7 +12,7 @@ const ReturnsPolicy: React.FC = () => {
                     <h1 className="text-3xl md:text-5xl font-serif text-navy-900 mb-6 uppercase tracking-wide">Refund & Return Policy</h1>
                     <div className="w-24 h-0.5 bg-gold-500 mx-auto"></div>
                     <p className="mt-6 text-gray-500 font-light max-w-2xl mx-auto font-sans">
-                        Neela Fashion - Last Updated: 17-12-2025
+                        Radhe Clothing - Last Updated: 2026
                     </p>
                     <p className="mt-2 text-sm text-gray-600">
                         We want our customers to be fully satisfied with their purchase. If you are not happy with your order, please review our policy below.
@@ -162,7 +162,7 @@ const ReturnsPolicy: React.FC = () => {
                             <div className="bg-white p-6 shadow-sm rounded flex flex-col items-center">
                                 <MapPin className="text-gold-600 mb-3" size={24} />
                                 <span className="text-xs font-bold uppercase text-gray-400 mb-1">Business Address</span>
-                                <p className="text-sm font-medium text-navy-900 text-center">Neela Fashion, 154, muthaliyarpatti street, Srivilliputtur -626125 ,Tamil Nadu, India</p>
+                                <p className="text-sm font-medium text-navy-900 text-center">Radhe Clothing, Main Fashion Avenue, India</p>
                             </div>
                         </div>
                     </div>

@@ -66,7 +66,7 @@ const seedAdmin = async () => {
         if (!adminExists) {
             const hashedPassword = await bcrypt.hash(plainPass, 10);
             await User.create({
-                name: 'Neela Admin',
+                name: 'Radhe Admin',
                 email: adminEmail,
                 password: hashedPassword,
                 role: 'admin',

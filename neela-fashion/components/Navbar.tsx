@@ -103,8 +103,8 @@ const Navbar: React.FC = () => {
   return (
     <>
       <nav 
-        className={`fixed w-full z-50 transition-all duration-700 ${
-          isScrolled ? 'bg-white/95 backdrop-blur-md text-navy-900 shadow-sm py-3' : 'bg-transparent text-navy-900 py-6'
+        className={`fixed w-full z-50 transition-all duration-500 ${
+          isScrolled ? 'bg-white/95 backdrop-blur-md text-slate-900 shadow-md py-2 border-b border-krishna-100' : 'bg-white/90 backdrop-blur-sm text-slate-900 shadow-sm py-4 border-b border-slate-100'
         }`}
       >
         <div className="container mx-auto px-6 md:px-12">
@@ -113,20 +113,20 @@ const Navbar: React.FC = () => {
             {/* Left: Links (Desktop) / Burger (Mobile) */}
             <div className="flex items-center justify-start">
                <button 
-                className="md:hidden focus:outline-none mr-4 text-navy-900 hover:text-gold-600 transition-colors"
+                className="md:hidden focus:outline-none mr-4 text-slate-800 hover:text-peacock-600 transition-colors"
                 onClick={() => setMobileMenuOpen(true)}
               >
                 <Menu size={28} />
               </button>
 
               <div className="hidden md:flex items-center space-x-8">
-                  <Link to="/" className="text-xs font-semibold uppercase tracking-[0.15em] hover:text-gold-600 transition-colors">
+                  <Link to="/" className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-800 hover:text-peacock-600 transition-colors">
                     Home
                   </Link>
-                  <Link to="/about" className="text-xs font-semibold uppercase tracking-[0.15em] hover:text-gold-600 transition-colors">
-                    About
+                  <Link to="/about" className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-800 hover:text-peacock-600 transition-colors">
+                    About Us
                   </Link>
-                  <Link to="/contact" className="text-xs font-semibold uppercase tracking-[0.15em] hover:text-gold-600 transition-colors">
+                  <Link to="/contact" className="text-xs font-semibold uppercase tracking-[0.15em] text-slate-800 hover:text-peacock-600 transition-colors">
                     Contact
                   </Link>
               </div>
@@ -137,20 +137,20 @@ const Navbar: React.FC = () => {
               <Link to="/" className="flex flex-col items-center group">
                  <div 
                     className={`relative transition-all duration-500 flex items-center justify-center`}
-                    style={{ width: isScrolled ? '40px' : globalSettings.logoWidth || '80px' }}
+                    style={{ width: isScrolled ? '55px' : globalSettings.logoWidth || '120px' }}
                  >
                      {globalSettings.logoUrl ? (
                         <img 
                           src={globalSettings.logoUrl} 
-                          alt={globalSettings.siteName} 
-                          className="w-full h-auto object-contain drop-shadow-md"
+                          alt={globalSettings.siteName || "Radhe Clothing"} 
+                          className="w-full h-auto object-contain drop-shadow-md max-h-16"
                         />
                      ) : (
-                        <span className="font-serif font-bold text-2xl text-navy-900">NF</span>
+                        <span className="font-serif font-bold text-2xl text-krishna-700">RC</span>
                      )}
                  </div>
                  <div className={`mt-1 text-center transition-all duration-500 ${isScrolled ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100 h-auto'}`}>
-                     <span className="block text-[0.5rem] uppercase tracking-[0.4em] text-gold-600 font-bold mt-1">{globalSettings.siteName}</span>
+                     <span className="block text-[0.55rem] uppercase tracking-[0.35em] text-krishna-700 font-bold mt-1">{globalSettings.siteName || "Radhe Clothing"}</span>
                  </div>
               </Link>
             </div>

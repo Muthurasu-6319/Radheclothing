@@ -74,9 +74,9 @@ const About: React.FC = () => {
       
       {/* Signature Section */}
       <div className="py-24 bg-sand-50 text-center">
-          <PenTool size={40} className="mx-auto text-navy-900 mb-6 opacity-20" />
-          <h3 className="text-3xl font-serif text-navy-900 italic mb-2">"Luxury is in each detail."</h3>
-          <p className="text-xs font-bold uppercase tracking-widest text-gold-600">Neela Fashion House</p>
+          <PenTool size={40} className="mx-auto text-krishna-700 mb-6 opacity-20" />
+          <h3 className="text-3xl font-serif text-krishna-800 italic mb-2">"Luxury is in each detail."</h3>
+          <p className="text-xs font-bold uppercase tracking-widest text-peacock-600">Radhe Clothing House</p>
       </div>
     </div>
   );

@@ -134,7 +134,7 @@ const Terms: React.FC = () => {
                     <div>
                         <h3 className="text-xl font-serif text-navy-900 font-bold mb-3">8. Liability Limitation</h3>
                         <p className="text-gray-600 text-sm leading-relaxed">
-                            Neela Fashion shall not be liable for any direct, indirect, incidental, or consequential damages resulting from the use or inability to use our products or website. Our liability is limited to the value of the product purchased.
+                            Radhe Clothing shall not be liable for any direct, indirect, incidental, or consequential damages resulting from the use or inability to use our products or website. Our liability is limited to the value of the product purchased.
                         </p>
                     </div>
                 </div>
@@ -147,7 +147,7 @@ const Terms: React.FC = () => {
                     <div>
                         <h3 className="text-xl font-serif text-navy-900 font-bold mb-3">9. Governing Law</h3>
                         <p className="text-gray-600 text-sm leading-relaxed">
-                            These terms shall be governed by and construed in accordance with the laws of India. Any disputes arising out of these terms shall be subject to the exclusive jurisdiction of the courts in Tamil Nadu, India.
+                            These terms shall be governed by and construed in accordance with the laws of India. Any disputes arising out of these terms shall be subject to the exclusive jurisdiction of the courts in India.
                         </p>
                     </div>
                 </div>
@@ -158,7 +158,7 @@ const Terms: React.FC = () => {
         {/* Footer Note */}
         <div className="mt-12 text-center pt-8 border-t border-gray-200">
             <p className="text-xs text-gray-400 flex items-center justify-center gap-2">
-                <ShieldCheck size={14} /> Neela Fashion Official Terms
+                <ShieldCheck size={14} /> Radhe Clothing Official Terms
             </p>
         </div>
 

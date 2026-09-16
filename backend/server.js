@@ -46,7 +46,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 app.get('/', (req, res) => {
-    res.send('Neela Fashion API is Running! 🚀');
+    res.send('Radhe Clothing API is Running! 🚀');
 });
 
 // --- AUTH ROUTES ---

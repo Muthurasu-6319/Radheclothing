@@ -98,14 +98,10 @@ const DashboardView = ({ setTab, setToast }: { setTab: (tab: any) => void, setTo
     document.body.removeChild(link);
   };
 
-  const handleResetDashboard = async () => {
-      try {
-          await fetch(`${API_URL}/api/admin/reset-stats`, { method: 'DELETE' });
-          setToast("Dashboard Reset Successfully. Reloading...");
-          setTimeout(() => window.location.reload(), 1500);
-      } catch (error) {
-          setToast("Failed to reset dashboard");
-      }
+  const handleResetDashboard = () => {
+      localStorage.removeItem('rc_orders');
+      setToast("Dashboard Reset Successfully. Reloading...");
+      setTimeout(() => window.location.reload(), 1500);
       setShowResetConfirm(false);
   };
 
@@ -1337,33 +1333,39 @@ const ManualOrderView = ({ setToast }: { setToast: (msg: string) => void }) => {
             if (it.qty > available) { setToast(`Item ${i + 1}: Only ${available} in stock for "${p.name}"${it.size ? ` (Size ${it.size})` : ''}. Reduce quantity.`); return; }
         }
         setLoading(true);
-        try {
-            const res = await fetch(`${API_URL}/api/admin/manual-order`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    billingDetails: billingForm,
-                    shippingDetails: sameAsBilling ? billingForm : shippingForm,
-                    items: items.map(it => ({ productId: it.productId, size: it.size, qty: it.qty })),
-                    paymentMethod, paymentStatus, notes
-                })
-            });
-            const data = await res.json();
-            if (data.success) {
-                setToast(`Order ${data.order.id} created successfully!`);
-                setPreviewShipping(data.shipping);
-                setBillingForm({ ...emptyBilling });
-                setShippingForm({ ...emptyBilling });
-                setItems([{ ...emptyItem }]);
-                setPickerState([{ ...emptyPicker }]);
-                setNotes('');
-                setSameAsBilling(true);
-            } else {
-                setToast(`Error: ${data.message}`);
-            }
-        } catch {
-            setToast('Server error. Please try again.');
-        }
+        const newOrderId = 'ORD-' + Date.now().toString().slice(-6);
+        const orderItems = items.map(it => {
+            const p = getProduct(it.productId);
+            return {
+                ...p!,
+                quantity: it.qty,
+                selectedSize: it.size
+            };
+        });
+        const totalAmount = orderItems.reduce((acc, curr) => acc + (curr.discountPrice || curr.price) * curr.quantity, 0);
+
+        const newOrder: any = {
+            id: newOrderId,
+            userId: 'ADMIN-MANUAL',
+            userName: `${billingForm.firstName} ${billingForm.lastName}`,
+            date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+            total: totalAmount,
+            status: paymentStatus === 'Paid' ? 'Confirmed' : 'Pending',
+            paymentMethod: paymentMethod,
+            items: orderItems,
+            billingDetails: billingForm,
+            shippingDetails: sameAsBilling ? billingForm : shippingForm,
+            notes: notes
+        };
+
+        addOrder(newOrder);
+        setToast(`Order ${newOrderId} created successfully!`);
+        setBillingForm({ ...emptyBilling });
+        setShippingForm({ ...emptyBilling });
+        setItems([{ ...emptyItem }]);
+        setPickerState([{ ...emptyPicker }]);
+        setNotes('');
+        setSameAsBilling(true);
         setLoading(false);
     };
 

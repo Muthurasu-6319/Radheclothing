@@ -96,7 +96,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 z-20 ${
             isLiked 
               ? 'bg-red-500 text-white scale-110 shadow-lg' 
-              : 'bg-white text-navy-900 hover:bg-gold-500 hover:text-white opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0'
+              : 'bg-white text-krishna-900 hover:bg-gold-500 hover:text-white opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0'
           }`}
         >
           <Heart size={14} fill={isLiked ? "currentColor" : "none"} />
@@ -105,7 +105,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-2 z-10 pointer-events-none">
             {product.discountPrice && !isOutOfStock && (
-              <div className="bg-white text-navy-900 text-[10px] font-bold px-3 py-1 uppercase tracking-widest shadow-sm">
+              <div className="bg-krishna-900 text-white text-[10px] font-bold px-3 py-1 uppercase tracking-widest shadow-sm">
                 Sale
               </div>
             )}
@@ -126,7 +126,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         )}
 
         {/* HOVER ACTIONS AREA */}
-        <div className={`absolute bottom-0 left-0 right-0 p-4 transition-transform duration-500 ease-out flex flex-col gap-2 bg-white/95 backdrop-blur-md border-t border-gold-500/20 z-30 ${showSizeSelection ? 'translate-y-0' : 'translate-y-full group-hover:translate-y-0'}`}>
+        <div className={`absolute bottom-0 left-0 right-0 p-4 transition-transform duration-500 ease-out flex flex-col gap-2 bg-white/95 backdrop-blur-md border-t border-peacock-500/20 z-30 ${showSizeSelection ? 'translate-y-0' : 'translate-y-full group-hover:translate-y-0'}`}>
             
             {!showSizeSelection ? (
                 // STATE 1: Default Buttons
@@ -134,7 +134,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                     <button 
                         onClick={handleAddToCartClick}
                         disabled={isOutOfStock}
-                        className={`w-full h-10 uppercase text-[10px] font-bold tracking-widest transition-all duration-300 flex items-center justify-center gap-2 overflow-hidden relative ${isOutOfStock ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-navy-900 text-white hover:bg-gold-600'}`}
+                        className={`w-full h-10 uppercase text-[10px] font-bold tracking-widest transition-all duration-300 flex items-center justify-center gap-2 overflow-hidden relative ${isOutOfStock ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-krishna-900 text-white hover:bg-peacock-600'}`}
                     >
                         {isOutOfStock ? (
                         <span className="flex items-center"><Ban size={14} className="mr-1" /> Sold Out</span>
@@ -143,15 +143,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         )}
                     </button>
                     <div className="flex justify-between items-center px-1">
-                        <span className="text-navy-900 text-xs font-light tracking-wider uppercase truncate max-w-[150px]">{product.category}</span>
-                        <Link to={`/product/${product.id}`} className="text-navy-900 hover:text-gold-600 transition-colors"><Eye size={18} strokeWidth={1.5} /></Link>
+                        <span className="text-krishna-900 text-xs font-light tracking-wider uppercase truncate max-w-[150px]">{product.category}</span>
+                        <Link to={`/product/${product.id}`} className="text-krishna-900 hover:text-peacock-600 transition-colors"><Eye size={18} strokeWidth={1.5} /></Link>
                     </div>
                 </>
             ) : (
                 // STATE 2: Size Selection
                 <div className="animate-fade-in">
                     <div className="flex justify-between items-center mb-2">
-                        <span className="text-xs font-bold uppercase text-navy-900 tracking-widest">Select Size</span>
+                        <span className="text-xs font-bold uppercase text-krishna-900 tracking-widest">Select Size</span>
                         <button onClick={closeSizeSelection} className="text-gray-400 hover:text-red-500"><X size={14} /></button>
                     </div>
                     <div className="flex flex-wrap gap-2 justify-center">
@@ -166,7 +166,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                     onClick={(e) => hasStock && handleSizeSelect(e, size)}
                                     className={`w-8 h-8 flex items-center justify-center text-[10px] font-bold border transition-all rounded-sm
                                         ${hasStock 
-                                            ? 'border-gray-300 text-navy-900 hover:bg-navy-900 hover:text-white hover:border-navy-900' 
+                                            ? 'border-gray-300 text-krishna-900 hover:bg-krishna-900 hover:text-white hover:border-krishna-900' 
                                             : 'border-gray-200 text-gray-300 bg-gray-50 cursor-not-allowed line-through decoration-red-400'}
                                     `}
                                 >
@@ -182,17 +182,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       
       {/* Product Info Below Image */}
       <Link to={`/product/${product.id}`} className="text-center relative overflow-hidden pt-2 block">
-        <h3 className="font-serif text-lg text-navy-900 truncate px-2 relative z-10 transition-colors duration-300 group-hover:text-gold-600">
+        <h3 className="font-serif text-lg text-krishna-900 truncate px-2 relative z-10 transition-colors duration-300 group-hover:text-peacock-600">
           {product.name}
         </h3>
         <div className="flex items-center justify-center space-x-2 text-sm mt-1">
           {product.discountPrice ? (
             <>
               <span className="text-gray-400 line-through font-light text-xs">₹{product.price}</span>
-              <span className="font-semibold text-navy-900">₹{product.discountPrice}</span>
+              <span className="font-semibold text-krishna-900">₹{product.discountPrice}</span>
             </>
           ) : (
-            <span className="font-semibold text-navy-900">₹{product.price}</span>
+            <span className="font-semibold text-krishna-900">₹{product.price}</span>
           )}
         </div>
       </Link>

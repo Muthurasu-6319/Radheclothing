@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, Phone, ArrowRight, Sparkles } from 'lucide-react';
 import { useCMS } from '../context/CMSContext';
+import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast'; // Import Toast
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
-  const { globalSettings } = useCMS();
+  const { globalSettings, addUser } = useCMS();
+  const { registerUserSession } = useAuth();
 
   // State to store input values
   const [formData, setFormData] = useState({
@@ -31,51 +33,35 @@ const Signup: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Basic Validation
     if (formData.password !== formData.confirmPassword) {
-        toast.error("Passwords do not match!"); // Beautiful Error
+        toast.error("Passwords do not match!");
         return;
     }
 
     setLoading(true);
 
-    try {
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const newUser = {
+        id: String(Date.now()),
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        role: 'customer' as const,
+        isActive: true
+    };
 
-// Inside handleSubmit function
-    const response = await fetch(`${API_URL}/api/signup`, {          
-             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                name: formData.name,
-                email: formData.email,
-                phone: formData.phone,
-                password: formData.password
-            })
-        });
+    addUser(newUser);
+    registerUserSession(newUser);
 
-        const data = await response.json();
-
-        if (data.success) {
-            toast.success("Account created successfully! Please Login.", {
-                duration: 4000,
-                style: {
-                    background: '#1e2a4a',
-                    color: '#fff',
-                    border: '1px solid #c48b36'
-                },
-                icon: '🎉',
-            });
-            navigate('/login');
-        } else {
-            toast.error(data.message || "Signup Failed");
-        }
-    } catch (error) {
-        console.error("Signup Error:", error);
-        toast.error("Server Error. Please try again.");
-    } finally {
-        setLoading(false);
-    }
+    toast.success("Account created successfully!", {
+        duration: 3000,
+        style: {
+            background: '#0f4c81',
+            color: '#fff',
+        },
+        icon: '🎉',
+    });
+    setLoading(false);
+    navigate('/');
   };
 
   return (
